@@ -2,11 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { cwd } from 'node:process';
 import _ from 'lodash';
+import parse from './parsers.js';
 
 const getData = (filepath) => {
   const absolutePath = path.resolve(cwd(), filepath);
   const content = fs.readFileSync(absolutePath, 'utf-8');
-  return JSON.parse(content);
+  const format = path.extname(filepath);
+
+  return parse(content, format);
 };
 
 const formatValue = (value) => String(value);

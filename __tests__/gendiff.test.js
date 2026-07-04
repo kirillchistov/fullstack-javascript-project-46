@@ -7,9 +7,12 @@ import genDiff from '../src/index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test('gendiff flat json', () => {
-  const filepath1 = path.join(__dirname, '..', 'data', 'file1.json');
-  const filepath2 = path.join(__dirname, '..', 'data', 'file2.json');
+test.each([
+  ['json', 'file1.json', 'file2.json'],
+  ['yml', 'file1.yml', 'file2.yml'],
+])('gendiff flat %s', (_format, file1, file2) => {
+  const filepath1 = path.join(__dirname, '..', 'data', file1);
+  const filepath2 = path.join(__dirname, '..', 'data', file2);
   const expected = fs.readFileSync(
     path.join(__dirname, '__fixtures__', 'expected.txt'),
     'utf-8',
