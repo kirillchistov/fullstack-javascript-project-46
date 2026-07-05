@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import _ from 'lodash';
 import parse from './parsers.js';
+import buildDiff from './buildDiff.js';
+import formatStylish from './formatters/stylish.js';
 
 const getData = (filepath) => {
   const absolutePath = path.resolve(cwd(), filepath);
@@ -12,34 +13,17 @@ const getData = (filepath) => {
   return parse(content, format);
 };
 
-const formatValue = (value) => String(value);
-
-const genDiff = (filepath1, filepath2) => {
+const genDiff = (filepath1, filepath2, format = 'stylish') => {
   const data1 = getData(filepath1);
   const data2 = getData(filepath2);
+  const diff = buildDiff(data1, data2);
 
-  const keys = _.sortBy([...new Set([...Object.keys(data1), ...Object.keys(data2)])]);
-
-  const lines = keys.flatMap((key) => {
-    if (!Object.hasOwn(data2, key)) {
-      return `  - ${key}: ${formatValue(data1[key])}`;
-    }
-
-    if (!Object.hasOwn(data1, key)) {
-      return `  + ${key}: ${formatValue(data2[key])}`;
-    }
-
-    if (data1[key] === data2[key]) {
-      return `    ${key}: ${formatValue(data1[key])}`;
-    }
-
-    return [
-      `  - ${key}: ${formatValue(data1[key])}`,
-      `  + ${key}: ${formatValue(data2[key])}`,
-    ];
-  });
-
-  return ['{', ...lines, '}'].join('\n');
+  switch (format) {
+    case 'stylish':
+      return formatStylish(diff);
+    default:
+      throw new Error(`Unknown format: ${format}`);
+  }
 };
 
 export default genDiff;
