@@ -26,12 +26,6 @@ const stringify = (value, depth) => {
   return ['{', ...lines, `${getIndent(depth)}}`].join('\n');
 };
 
-const formatLine = (indent, sign, key, value, depth) => {
-  const stringifiedValue = stringify(value, depth);
-  const separator = stringifiedValue === '' ? '' : ' ';
-  return `${indent}${sign} ${key}:${separator}${stringifiedValue}`;
-};
-
 const iter = (tree, depth) => {
   const lines = tree.flatMap((node) => {
     const indent = getIndent(depth, 2);
@@ -42,18 +36,18 @@ const iter = (tree, depth) => {
         return `${indent}  ${node.key}: {\n${iter(node.children, depth + 1)}\n${bracketIndent}}`;
 
       case 'unchanged':
-        return formatLine(indent, ' ', node.key, node.value, depth);
+        return `${indent}  ${node.key}: ${stringify(node.value, depth)}`;
 
       case 'added':
-        return formatLine(indent, '+', node.key, node.value, depth);
+        return `${indent}+ ${node.key}: ${stringify(node.value, depth)}`;
 
       case 'removed':
-        return formatLine(indent, '-', node.key, node.value, depth);
+        return `${indent}- ${node.key}: ${stringify(node.value, depth)}`;
 
       case 'changed':
         return [
-          formatLine(indent, '-', node.key, node.value1, depth),
-          formatLine(indent, '+', node.key, node.value2, depth),
+          `${indent}- ${node.key}: ${stringify(node.value1, depth)}`,
+          `${indent}+ ${node.key}: ${stringify(node.value2, depth)}`,
         ];
 
       default:
